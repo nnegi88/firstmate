@@ -1,0 +1,10 @@
+1..7
+ok - fresh rows pass and every row is printed with its age
+ok - an over-age row fails the gate, is named, and the report is untouched
+ok - --column picks the timestamp column and --max-age sets the bound
+ok - explicit offsets are honoured and a time with no offset is read in local time
+ok - empty, date-only, prose, and future timestamps fail closed
+ok - a table without the timestamp column fails the gate even beside a fresh table
+ok - usage and input errors exit 2
+FM_TEST_COMPLETE
+rc=0

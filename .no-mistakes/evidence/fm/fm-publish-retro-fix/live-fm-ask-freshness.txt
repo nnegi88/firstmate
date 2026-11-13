@@ -1,0 +1,77 @@
+=== fresh.md ===
+# Triage
+| item | ask | checked_at |
+|---|---|---|
+| MR !42 | merge? | 2026-11-13T07:47Z |
+| issue 7 | close? | 2026-11-13T07:07Z |
+
+=== stale.md ===
+# Triage
+| item | ask | checked_at |
+|---|---|---|
+| MR !42 | merge? | 2026-11-13T07:47Z |
+| issue 7 | close? | 2026-11-13T02:47Z |
+| issue 9 | close? | yesterday |
+
+=== mixed.md ===
+# Triage
+## Asks
+| item | ask |
+|---|---|
+| MR !42 | merge? |
+
+## Recently verified
+| item | checked_at |
+|---|---|
+| MR !42 | 2026-11-13T07:47Z |
+
+=== notable.md ===
+# Triage
+Just prose.
+
+$ bin/fm-ask-freshness.sh $W/fresh.md
+line 4: fresh age 15s (checked_at 2026-11-13T07:47Z): | MR !42 | merge? | 2026-11-13T07:47Z |
+line 5: fresh age 40m (checked_at 2026-11-13T07:07Z): | issue 7 | close? | 2026-11-13T07:07Z |
+all 2 rows are within 2h
+[exit 0]
+
+$ bin/fm-ask-freshness.sh $W/stale.md
+error: 2 of 3 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 5: STALE age 5h00m (checked_at 2026-11-13T02:47Z): | issue 7 | close? | 2026-11-13T02:47Z |
+  line 6: UNREADABLE unknown age (checked_at 'yesterday'): | issue 9 | close? | yesterday |
+line 4: fresh age 15s (checked_at 2026-11-13T07:47Z): | MR !42 | merge? | 2026-11-13T07:47Z |
+line 5: STALE age 5h00m (checked_at 2026-11-13T02:47Z): | issue 7 | close? | 2026-11-13T02:47Z |
+line 6: UNREADABLE unknown age (checked_at 'yesterday'): | issue 9 | close? | yesterday |
+[exit 1]
+
+stale.md unchanged after gate
+
+$ bin/fm-ask-freshness.sh $W/stale.md --max-age 6h
+error: 1 of 3 rows are older than 6h or have no readable checked_at; re-check these before putting them to the captain:
+  line 6: UNREADABLE unknown age (checked_at 'yesterday'): | issue 9 | close? | yesterday |
+line 4: fresh age 15s (checked_at 2026-11-13T07:47Z): | MR !42 | merge? | 2026-11-13T07:47Z |
+line 5: fresh age 5h00m (checked_at 2026-11-13T02:47Z): | issue 7 | close? | 2026-11-13T02:47Z |
+line 6: UNREADABLE unknown age (checked_at 'yesterday'): | issue 9 | close? | yesterday |
+[exit 1]
+
+$ bin/fm-ask-freshness.sh $W/mixed.md
+error: 1 table(s) in '$W/mixed.md' have no 'checked_at' column, so their rows were never dated; add the column and re-check them:
+  table at line 3: no 'checked_at' column
+line 10: fresh age 15s (checked_at 2026-11-13T07:47Z): | MR !42 | 2026-11-13T07:47Z |
+[exit 2]
+
+$ bin/fm-ask-freshness.sh $W/notable.md
+error: report '$W/notable.md' has no markdown table
+[exit 2]
+
+$ bin/fm-ask-freshness.sh $W/fresh.md --max-age 10m
+error: 1 of 2 rows are older than 10m or have no readable checked_at; re-check these before putting them to the captain:
+  line 5: STALE age 40m (checked_at 2026-11-13T07:07Z): | issue 7 | close? | 2026-11-13T07:07Z |
+line 4: fresh age 15s (checked_at 2026-11-13T07:47Z): | MR !42 | merge? | 2026-11-13T07:47Z |
+line 5: STALE age 40m (checked_at 2026-11-13T07:07Z): | issue 7 | close? | 2026-11-13T07:07Z |
+[exit 1]
+
+$ bin/fm-ask-freshness.sh $W/fresh.md --max-age bogus
+error: --max-age 'bogus' is not a duration (use seconds, or parts like 2h, 90m, 1h30m)
+[exit 2]
+

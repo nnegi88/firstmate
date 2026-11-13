@@ -1,0 +1,29 @@
+$ FM_HOME=$LAB bin/fm-control.sh shipx relaunch --model sonnet --note carry on
+fm-gate-refuse: gate agent lifecycle permitted only against lab home $LAB
+error: relaunch of shipx was given --model without --harness, so the replacement runtime would be implied rather than chosen; nothing was stopped. Task shipx records harness 'claude' in state/shipx.meta. To keep it, run: bin/fm-control.sh shipx relaunch --harness claude --model sonnet --note carry\ on
+[exit 1]
+
+$ FM_HOME=$LAB bin/fm-control.sh smx relaunch --model gpt-5 --effort high --note carry on
+fm-gate-refuse: gate agent lifecycle permitted only against lab home $LAB
+error: relaunch of smx was given --model without --harness, so the replacement runtime would be implied rather than chosen; nothing was stopped. Task smx records harness 'codex' in state/smx.meta. To keep it, run: bin/fm-control.sh smx relaunch --harness codex --model gpt-5 --effort high --note carry\ on
+[exit 1]
+
+$ FM_HOME=$LAB bin/fm-control.sh rawx relaunch --model sonnet --note carry on
+fm-gate-refuse: gate agent lifecycle permitted only against lab home $LAB
+error: relaunch of rawx was given --model without --harness, so the replacement runtime would be implied rather than chosen; nothing was stopped. Task rawx records harness 'claude-wrapper' in state/rawx.meta, whose original launch command cannot be reconstructed from its recorded basename, so no command can keep it. Pass an explicit --harness to choose the replacement runtime deliberately
+[exit 1]
+
+## records after the three refusals
+shipx.meta unchanged
+rawx.meta unchanged
+smx.meta unchanged
+state/ listing unchanged (no journal, no lock left)
+
+## contrast: the same call with --harness passes this guard and reaches backend verification
+$ FM_HOME=$LAB bin/fm-control.sh shipx relaunch --harness claude --model sonnet --note carry on
+fm-gate-refuse: gate agent lifecycle permitted only against lab home $LAB
+error: task shipx's endpoint reads 'unreadable' rather than a positively classified state; refusing to send a lifecycle command into an unattributed endpoint
+error: relaunch of shipx failed while stopping the old agent and its state is 'unreadable', so it was not proven stopped; its original instructions were restored and the durable record was retained for recovery
+[exit 1]
+
+lab torn down: yes
