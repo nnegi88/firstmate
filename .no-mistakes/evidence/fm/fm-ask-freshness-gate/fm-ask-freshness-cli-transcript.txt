@@ -1,0 +1,81 @@
+===== 1-heading.md
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+## Next section
+text
+----- run (NOW=2026-11-13T12:00Z)
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+all 1 rows are within 2h
+exit=0
+===== 2-list.md
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+- follow up note
+1. second
+----- run (NOW=2026-11-13T12:00Z)
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+all 1 rows are within 2h
+exit=0
+===== 3-pipelist-stale.md
+item | checked_at
+--- | ---
+a | 2026-11-13T11:30Z
+2. resend reply | 2026-11-13T02:00Z
+----- run (NOW=2026-11-13T12:00Z)
+error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 4: STALE age 10h00m (checked_at 2026-11-13T02:00Z): 2. resend reply | 2026-11-13T02:00Z
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): a | 2026-11-13T11:30Z
+line 4: STALE age 10h00m (checked_at 2026-11-13T02:00Z): 2. resend reply | 2026-11-13T02:00Z
+exit=1
+===== 4-shortrow-stale.md
+| item | checked_at | action |
+| --- | --- | --- |
+| a | 2026-11-13T11:30Z | ok |
+| b | 2026-11-13T04:00Z |
+----- run (NOW=2026-11-13T12:00Z)
+error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | b | 2026-11-13T04:00Z |
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z | ok |
+line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | b | 2026-11-13T04:00Z |
+exit=1
+===== 5-short-unreadable.md
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+| b | merge |
+old ask
+----- run (NOW=2026-11-13T12:00Z)
+error: 2 of 3 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 4: UNREADABLE unknown age (checked_at 'merge'): | b | merge |
+  line 5: UNREADABLE unknown age (checked_at ''): old ask
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+line 4: UNREADABLE unknown age (checked_at 'merge'): | b | merge |
+line 5: UNREADABLE unknown age (checked_at ''): old ask
+exit=1
+===== 6-incident-stale.md
+| item | checked_at |
+| --- | --- |
+| resend reply to X | 2026-11-13T04:00Z |
+| a | 2026-11-13T11:45Z |
+----- run (NOW=2026-11-13T12:00Z)
+error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend reply to X | 2026-11-13T04:00Z |
+line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend reply to X | 2026-11-13T04:00Z |
+line 4: fresh age 15m (checked_at 2026-11-13T11:45Z): | a | 2026-11-13T11:45Z |
+exit=1
+===== 7-other-blocks.md
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+> quote
+
+```
+code
+```
+---
+----- run (NOW=2026-11-13T12:00Z)
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+all 1 rows are within 2h
+exit=0
