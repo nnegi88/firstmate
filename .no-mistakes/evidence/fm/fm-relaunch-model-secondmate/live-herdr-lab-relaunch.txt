@@ -1,0 +1,54 @@
+lab session: fm-lab-relaunchmodel-49127-24261
+
+=== S1: secondmate (recorded claude) relaunch --model without --harness
+
+$ bin/fm-control.sh smlive relaunch --model haiku --note carry on
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+error: relaunch of smlive was given --model without --harness, so the replacement runtime would be implied rather than chosen; nothing was stopped. Task smlive records harness 'claude' in state/smlive.meta. To keep it, run: bin/fm-control.sh smlive relaunch --harness claude --model haiku --note carry\ on
+[exit=1]
+check: state/smlive.meta unchanged
+check: no relaunch transaction opened
+
+=== S2: secondmate with raw basename claude-wrapper, --model without --harness
+
+$ bin/fm-control.sh smraw relaunch --model haiku
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+error: relaunch of smraw was given --model without --harness, so the replacement runtime would be implied rather than chosen; nothing was stopped. Task smraw records harness 'claude-wrapper' in state/smraw.meta, whose original launch command cannot be reconstructed from its recorded basename, so no command can keep it. Pass an explicit --harness to choose the replacement runtime deliberately
+[exit=1]
+
+=== S3: ship (recorded claude) relaunch --model haiku without --harness, on real Claude
+
+$ bin/fm-control.sh shiplive relaunch --model haiku --note live check
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+●  WATCHER DOWN - SUPERVISION IS OFF
+●  3 task(s) in flight, but no watcher has a fresh beacon (last beat: never, grace 300s).
+●  Trust the emitted supervision protocol for this harness; do not use shell & for watcher repair.
+●  This is a supervision warning only; the guarded operation WILL still run.
+●  watcher supervision needs Stop-owned automatic recovery; inspect the hook registration and startup status before ending the turn.
+●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+error: /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4/data/shiplive/brief.md must contain nonempty ## Captain's intent and ## Firstmate spec subsections (or a nonempty legacy # Task body) before spawn
+error: the replacement agent for shiplive could not be launched on claude
+error: shiplive's agent was stopped but the replacement did not launch; no agent is running, and its work plus the recorded progress note are preserved at /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4/shipwt
+[exit=1]
+meta after: harness=claude model=default
+--- ship pane process-info / agent:
+{"agent":null,"agent_status":"unknown"}
+--- ship pane screen (tail):
+naveennegi@Admins-MacBook-Pro-2 shipwt %
+proc: 49112 /bin/zsh -c source /Users/naveennegi/.claude/shell-snapshots/snapshot-zsh-1794668058042-ep3wxe.sh 2>/dev/null || true && \builtin setopt NO_EXTENDED_GLOB NO_BARE_GLOB_QUAL NO_BRACE_CCL NO_MAGIC_EQUAL_SUBST 2>/dev/null || true && { \builtin unalias -- 'which'; \builtin unset -f -- 'which'; } >/dev/null 2>&1 || true && { \builtin unalias -- 'unsetenv'; \builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'cat > /tmp/fmlive2.sh <<'"'"'EOF'"'"'\012#!/usr/bin/env bash\012set -u\012ROOT=/Users/naveennegi/.no-mistakes/worktrees/990b2a3f7c87/01M7D8RY44YPX6GKQHJX123Z99\012cd "$ROOT"\012unset HERDR_ENV HERDR_PANE_ID HERDR_TAB_ID HERDR_WORKSPACE_ID HERDR_SOCKET_PATH HERDR_SESSION\012unset NO_MISTAKES_GATE FM_GATE_REFUSE_BYPASS FM_ROOT_OVERRIDE FM_STATE_OVERRIDE FM_DATA_OVERRIDE FM_CONFIG_OVERRIDE FM_PROJECTS_OVERRIDE\012SESSION=$(bin/fm-herdr-lab.sh name relaunchmodel) || exit 1\012echo "lab session: $SESSION"\012LAB=$(mktemp -d "${TMPDIR:-/tmp}/fm-lab.XXXXXX"); LAB=$(cd "$LAB" && pwd -P)\012cleanup() {\012  bin/fm-herdr-lab.sh teardown "$SESSION" && echo "herdr lab torn down: $SESSION"\012  rm -rf "$LAB"; echo "lab home removed: $([ -e "$LAB" ] && echo no || echo yes)"\012}\012trap cleanup EXIT\012bin/fm-lab-home.sh create "$LAB" >/dev/null || exit 1\012bin/fm-herdr-lab.sh provision "$SESSION" >/dev/null || { echo "provision failed"; exit 1; }\012export HERDR_SESSION="$SESSION"\012. bin/fm-backend.sh; fm_backend_source herdr || exit 1\012\012# project + ship worktree; secondmate home worktree\012P="$LAB/projects/proj"; mkdir -p "$P"; git -C "$P" init -q; echo x > "$P/README.md"\012git -C "$P" add README.md; git -C "$P" -c user.name=t -c user.email=t@example.invalid commit -qm init\012git -C "$P" worktree add -q -b shipbr "$LAB/shipwt"\012git -C "$P" worktree add -q -b smbr "$LAB/smhome"\012SMH="$LAB/smhome"; mkdir -p "$SMH/state" "$SMH/data" "$SMH/bin"; printf '"'"'# agents\n'"'"' > "$SMH/AGENTS.md"\012\012mkpane() { # label dir -> sets WS TAB PANE\012  local raw c seeded ids\012  raw=$(fm_backend_herdr_container_ensure "$2") || return 1\012  c=${raw%%$'"'"'\t'"'"'*}; seeded=${raw#*$'"'"'\t'"'"'}; WS=${c#*:}\012  ids=$(fm_backend_herdr_create_task "$c" "$1" "$2" "$seeded") || return 1\012  read -r TAB PANE <<<"$ids"\012}\012mkmeta() { # id harness kind wt\012  { echo "window=$SESSION:$PANE"; echo "endpoint_task_id=$1"; echo "worktree=$4"; echo "project=$4"\012    echo "harness=$2"; echo "kind=$3"; echo "mode=$3"; echo "yolo=off"; echo "model=default"; echo "effort=default"\012    [ "$3" = secondmate ] && echo "home=$4"\012    echo "backend=herdr"; echo "herdr_session=$SESSION"; echo "herdr_workspace_id=$WS"; echo "herdr_tab_id=$TAB"; echo "herdr_pane_id=$PANE"\012  } > "$LAB/state/$1.meta"\012}\012for id in smlive smraw; do mkdir -p "$LAB/data/$id"; printf '"'"'# secondmate brief\n'"'"' > "$LAB/data/$id/brief.md"; done\012echo smlive > "$SMH/.fm-secondmate-home"\012mkdir -p "$LAB/data/shiplive"; printf '"'"'# Task\n## Captain'"'"'"'"'"'"'"'"'s intent\nlive check\n'"'"' > "$LAB/data/shiplive/brief.md"\012mkpane fm-smlive "$SMH" && mkmeta smlive claude secondmate "$SMH"\012mkpane fm-smraw "$SMH" && mkmeta smraw claude-wrapper secondmate "$SMH"\012mkpane fm-shiplive "$LAB/shipwt" && mkmeta shiplive claude ship "$LAB/shipwt"\012\012run() { echo; echo "\$ bin/fm-control.sh $*"; env FM_HOME="$LAB" HERDR_SESSION="$SESSION" FM_CONTROL_POLL=0.5 bin/fm-control.sh "$@" 2>&1; echo "[exit=$?]"; }\012\012echo; echo "=== S1: secondmate (recorded claude) relaunch --model without --harness"\012before=$(cat "$LAB/state/smlive.meta")\012run smlive relaunch --model haiku --note "carry on"\012[ "$(cat "$LAB/state/smlive.meta")" = "$before" ] && echo "check: state/smlive.meta unchanged"\012[ -e "$LAB/state/smlive.control-relaunch" ] && echo "check: transaction OPENED" || echo "check: no relaunch transaction opened"\012\012echo; echo "=== S2: secondmate with raw basename claude-wrapper, --model without --harness"\012run smraw relaunch --model haiku\012\012echo; echo "=== S3: ship (recorded claude) relaunch --model haiku without --harness, on real Claude"\012run shiplive relaunch --model haiku --note "live check"\012echo "meta after: harness=$(fm_meta_get "$LAB/state/shiplive.meta" harness 2>/dev/null || sed -n '"'"'s/^harness=//p'"'"' "$LAB/state/shiplive.meta" | tail -1) model=$(sed -n '"'"'s/^model=//p'"'"' "$LAB/state/shiplive.meta" | tail -1)"\012sleep 3\012P_SHIP=$(sed -n '"'"'s/^herdr_pane_id=//p'"'"' "$LAB/state/shiplive.meta" | tail -1)\012echo "--- ship pane process-info / agent:"\012herdr pane get "$P_SHIP" --session "$SESSION" 2>&1 | jq -c '"'"'{agent: .result.pane.agent, agent_status: .result.pane.agent_status}'"'"' 2>/dev/null || herdr pane get "$P_SHIP" --session "$SESSION" 2>&1 | head -5\012echo "--- ship pane screen (tail):"\012herdr pane read "$P_SHIP" --session "$SESSION" 2>/dev/null | tail -15 || fm_backend_herdr_capture "$SESSION:$P_SHIP" | tail -15\012ps -axo pid,command | command grep -E '"'"'[c]laude.*--model'"'"' | sed '"'"'s/^/proc: /'"'"' | head -3\012\012echo; echo "=== S4: secondmate --harness claude --model haiku whose launch fails (pane drifted out of home): refusal must not fire; recovery command printed"\012PS=$(sed -n '"'"'s/^herdr_pane_id=//p'"'"' "$LAB/state/smlive.meta" | tail -1)\012fm_backend_herdr_send_text_line "$SESSION:$PS" "cd -- $(printf %q "$P")"; sleep 1\012run smlive relaunch --harness claude --model haiku\012EOF\012E=/Users/naveennegi/.no-mistakes/evidence/01M7D8RY44YPX6GKQHJX123Z99\012bash /tmp/fmlive2.sh 2>&1 | tee $E/live-herdr-lab-relaunch.txt' && pwd -P >| /tmp/claude-5ce1-cwd
+
+=== S4: secondmate --harness claude --model haiku whose launch fails (pane drifted out of home): refusal must not fire; recovery command printed
+
+$ bin/fm-control.sh smlive relaunch --harness claude --model haiku
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+fm-gate-refuse: gate agent lifecycle permitted only against lab home /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4
+WARNING: watcher still down (same stale episode; last beat: never, grace 300s) - full banner already printed this episode.
+error: secondmate home cannot be inside the active firstmate home: /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4/smhome
+error: the replacement agent for smlive could not be launched on claude
+error: smlive's agent was stopped but the replacement did not launch; no agent is running, and its work plus the recorded progress note are preserved at /private/var/folders/_j/g8yyvnhj7wx1b1b04_lr1ck80000gp/T/fm-lab.MjLOA4/smhome
+recovery: once no agent is running at smlive's endpoint, bring the secondmate back on its intended runtime with: bin/fm-spawn.sh smlive --secondmate --backend herdr --harness claude --model haiku
+[exit=1]
+herdr lab torn down: fm-lab-relaunchmodel-49127-24261
+lab home removed: yes

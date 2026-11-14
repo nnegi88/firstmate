@@ -1,0 +1,31 @@
+/tmp/fmlive.sh: line 9: tmux: command not found
+/tmp/fmlive.sh: line 10: tmux: command not found
+/tmp/fmlive.sh: line 11: tmux: command not found
+== secondmate smlive (recorded codex): --model alone
+
+$ bin/fm-control.sh smlive relaunch --model cheap-model --note carry on
+error: refusing fleet lifecycle from inside a no-mistakes gate worktree (/Users/naveennegi/.no-mistakes/repos/990b2a3f7c87.git)
+[exit=3]
+meta unchanged: yes
+0
+/tmp/fmlive.sh: line 26: tmux: command not found
+pane still running: 
+== secondmate raw basename claude-wrapper: --model alone
+
+$ bin/fm-control.sh smraw relaunch --model sonnet
+error: refusing fleet lifecycle from inside a no-mistakes gate worktree (/Users/naveennegi/.no-mistakes/repos/990b2a3f7c87.git)
+[exit=3]
+== secondmate smlive with --harness codex --model (refusal must not fire)
+
+$ bin/fm-control.sh smlive relaunch --harness codex --model cheap-model --note carry on
+error: refusing fleet lifecycle from inside a no-mistakes gate worktree (/Users/naveennegi/.no-mistakes/repos/990b2a3f7c87.git)
+[exit=3]
+== ship shiplive (recorded codex): --model alone (refusal must not fire)
+
+$ bin/fm-control.sh shiplive relaunch --model cheap-model --note carry on
+error: refusing fleet lifecycle from inside a no-mistakes gate worktree (/Users/naveennegi/.no-mistakes/repos/990b2a3f7c87.git)
+[exit=3]
+/tmp/fmlive.sh: line 33: tmux: command not found
+panes: 
+/tmp/fmlive.sh: line 34: tmux: command not found
+lab removed: yes
