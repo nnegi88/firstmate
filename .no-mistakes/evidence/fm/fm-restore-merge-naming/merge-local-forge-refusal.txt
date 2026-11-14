@@ -1,0 +1,4 @@
+REFUSAL OUTPUT (rc=1):
+error: task local-task is mode=no-mistakes, not local-only; merge PR or MR tasks (GitHub, GitLab or Forgejo) with bin/fm-pr-merge.sh <id> <PR or MR url> after approval
+ok - a forge-delivered task is pointed at the PR or MR merge tool for every forge
+FM_TEST_COMPLETE

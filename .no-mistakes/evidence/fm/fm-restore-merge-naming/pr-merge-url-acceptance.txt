@@ -1,0 +1,9 @@
+$ bin/fm-pr-merge.sh nosuchtask https://gitlab.com/acme/widget/-/merge_requests/7
+error: task metadata is unavailable
+rc=1
+$ bin/fm-pr-merge.sh nosuchtask https://codeberg.org/acme/widget/pulls/7
+error: task metadata is unavailable
+rc=1
+$ bin/fm-pr-merge.sh nosuchtask https://gitlab.com/acme/widget/merge_requests/oops
+error: invalid PR merge request
+rc=2
