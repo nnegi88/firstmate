@@ -1,0 +1,17 @@
+1..15
+ok - fresh rows pass and every row is printed with its age
+ok - an over-age row fails the gate, is named, and the report is untouched
+ok - --column picks the timestamp column and --max-age sets the bound
+ok - explicit offsets are honoured and a time with no offset is read in local time
+ok - empty, date-only, prose, and future timestamps fail closed
+ok - pipe-less and short rows are checked and fail when undated
+ok - out-of-range offsets are unreadable and later rows are still checked
+ok - a table without the timestamp column fails the gate even beside a fresh table
+ok - usage and input errors exit 2
+ok - a heading, fence, thematic break or list right after a table ends its body
+ok - a short row before a block is still checked, and the block is not counted
+ok - a piped line that begins like a list item or heading is still a checked row
+ok - a table inside a fenced code block is skipped
+ok - a line of inline code does not open a fence
+ok - a closing HTML tag ends the table body
+FM_TEST_COMPLETE

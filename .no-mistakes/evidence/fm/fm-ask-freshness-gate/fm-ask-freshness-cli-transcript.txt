@@ -1,81 +1,131 @@
-===== 1-heading.md
+=== fresh ===
 | item | checked_at |
 | --- | --- |
-| a | 2026-11-13T11:30Z |
-## Next section
-text
------ run (NOW=2026-11-13T12:00Z)
-line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
-all 1 rows are within 2h
+| reply to ops | 2026-11-13T11:30Z |
+| merge PR | 2026-11-13T11:00Z |
+--- run: fm-ask-freshness.sh fresh.md  (NOW=2026-11-13T12:00Z)
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | reply to ops | 2026-11-13T11:30Z |
+line 4: fresh age 1h00m (checked_at 2026-11-13T11:00Z): | merge PR | 2026-11-13T11:00Z |
+all 2 rows are within 2h
 exit=0
-===== 2-list.md
+
+=== stale_8h ===
+| item | checked_at |
+| --- | --- |
+| reply to ops | 2026-11-13T11:30Z |
+| resend message | 2026-11-13T04:00Z |
+--- run: fm-ask-freshness.sh stale_8h.md  (NOW=2026-11-13T12:00Z)
+error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend message | 2026-11-13T04:00Z |
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | reply to ops | 2026-11-13T11:30Z |
+line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend message | 2026-11-13T04:00Z |
+exit=1
+
+=== max_age_override ===
+| item | checked_at |
+| --- | --- |
+| resend message | 2026-11-13T04:00Z |
+--- run: fm-ask-freshness.sh max_age_override.md  (NOW=2026-11-13T12:00Z)
+error: 1 of 1 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend message | 2026-11-13T04:00Z |
+line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend message | 2026-11-13T04:00Z |
+exit=1
+
+=== no_column ===
+| item | status |
+| --- | --- |
+| a | ok |
+--- run: fm-ask-freshness.sh no_column.md  (NOW=2026-11-13T12:00Z)
+error: 1 table(s) in '/tmp/fmaf.Gl3bxh/no_column.md' have no 'checked_at' column, so their rows were never dated; add the column and re-check them:
+  table at line 1: no 'checked_at' column
+exit=2
+
+=== unreadable ===
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13 |
+| b | |
+| c | 2026-11-13T13:00Z |
+--- run: fm-ask-freshness.sh unreadable.md  (NOW=2026-11-13T12:00Z)
+error: 3 of 3 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 3: UNREADABLE unknown age (checked_at '2026-11-13'): | a | 2026-11-13 |
+  line 4: UNREADABLE unknown age (checked_at ''): | b | |
+  line 5: UNREADABLE age -1h00m (checked_at 2026-11-13T13:00Z) is in the future: | c | 2026-11-13T13:00Z |
+line 3: UNREADABLE unknown age (checked_at '2026-11-13'): | a | 2026-11-13 |
+line 4: UNREADABLE unknown age (checked_at ''): | b | |
+line 5: UNREADABLE age -1h00m (checked_at 2026-11-13T13:00Z) is in the future: | c | 2026-11-13T13:00Z |
+exit=1
+
+=== list_after_table ===
 | item | checked_at |
 | --- | --- |
 | a | 2026-11-13T11:30Z |
 - follow up note
 1. second
------ run (NOW=2026-11-13T12:00Z)
+--- run: fm-ask-freshness.sh list_after_table.md  (NOW=2026-11-13T12:00Z)
 line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
 all 1 rows are within 2h
 exit=0
-===== 3-pipelist-stale.md
+
+=== pipeless_list_like_stale_row ===
 item | checked_at
 --- | ---
 a | 2026-11-13T11:30Z
 2. resend reply | 2026-11-13T02:00Z
------ run (NOW=2026-11-13T12:00Z)
+--- run: fm-ask-freshness.sh pipeless_list_like_stale_row.md  (NOW=2026-11-13T12:00Z)
 error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
   line 4: STALE age 10h00m (checked_at 2026-11-13T02:00Z): 2. resend reply | 2026-11-13T02:00Z
 line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): a | 2026-11-13T11:30Z
 line 4: STALE age 10h00m (checked_at 2026-11-13T02:00Z): 2. resend reply | 2026-11-13T02:00Z
 exit=1
-===== 4-shortrow-stale.md
-| item | checked_at | action |
-| --- | --- | --- |
-| a | 2026-11-13T11:30Z | ok |
-| b | 2026-11-13T04:00Z |
------ run (NOW=2026-11-13T12:00Z)
-error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
-  line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | b | 2026-11-13T04:00Z |
-line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z | ok |
-line 4: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | b | 2026-11-13T04:00Z |
-exit=1
-===== 5-short-unreadable.md
-| item | checked_at |
-| --- | --- |
-| a | 2026-11-13T11:30Z |
-| b | merge |
-old ask
------ run (NOW=2026-11-13T12:00Z)
-error: 2 of 3 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
-  line 4: UNREADABLE unknown age (checked_at 'merge'): | b | merge |
-  line 5: UNREADABLE unknown age (checked_at ''): old ask
-line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
-line 4: UNREADABLE unknown age (checked_at 'merge'): | b | merge |
-line 5: UNREADABLE unknown age (checked_at ''): old ask
-exit=1
-===== 6-incident-stale.md
-| item | checked_at |
-| --- | --- |
-| resend reply to X | 2026-11-13T04:00Z |
-| a | 2026-11-13T11:45Z |
------ run (NOW=2026-11-13T12:00Z)
-error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
-  line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend reply to X | 2026-11-13T04:00Z |
-line 3: STALE age 8h00m (checked_at 2026-11-13T04:00Z): | resend reply to X | 2026-11-13T04:00Z |
-line 4: fresh age 15m (checked_at 2026-11-13T11:45Z): | a | 2026-11-13T11:45Z |
-exit=1
-===== 7-other-blocks.md
-| item | checked_at |
-| --- | --- |
-| a | 2026-11-13T11:30Z |
-> quote
 
+=== fenced_example_then_fresh ===
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+
+````md
+| example | col |
+| --- | --- |
+| x | y |
 ```
-code
-```
----
------ run (NOW=2026-11-13T12:00Z)
+````
+--- run: fm-ask-freshness.sh fenced_example_then_fresh.md  (NOW=2026-11-13T12:00Z)
 line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
 all 1 rows are within 2h
 exit=0
+
+=== details_closing_tag ===
+<details>
+
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+</details>
+--- run: fm-ask-freshness.sh details_closing_tag.md  (NOW=2026-11-13T12:00Z)
+line 5: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+all 1 rows are within 2h
+exit=0
+
+=== inline_code_then_stale ===
+| item | checked_at |
+| --- | --- |
+| a | 2026-11-13T11:30Z |
+
+```fm --help``` now lists the flag.
+
+| item | checked_at |
+| --- | --- |
+| b | 2026-11-13T01:00Z |
+--- run: fm-ask-freshness.sh inline_code_then_stale.md  (NOW=2026-11-13T12:00Z)
+error: 1 of 2 rows are older than 2h or have no readable checked_at; re-check these before putting them to the captain:
+  line 9: STALE age 11h00m (checked_at 2026-11-13T01:00Z): | b | 2026-11-13T01:00Z |
+line 3: fresh age 30m (checked_at 2026-11-13T11:30Z): | a | 2026-11-13T11:30Z |
+line 9: STALE age 11h00m (checked_at 2026-11-13T01:00Z): | b | 2026-11-13T01:00Z |
+exit=1
+
+line 3: fresh age 8h00m (checked_at 2026-11-13T04:00Z): | resend message | 2026-11-13T04:00Z |
+all 1 rows are within 9h
+(above: --max-age 9h) exit=0
+error: report '/tmp/fmaf.Gl3bxh/nonexistent.md' is not a readable file
+(missing report) exit=2
